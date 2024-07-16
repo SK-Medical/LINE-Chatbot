@@ -5,6 +5,7 @@ import requests
 import hashlib
 import hmac
 import base64
+from typing import Any, Dict
 from assistant import create_run, complete_run, get_thread_messages
 from database import get_or_create_thread_id
 
@@ -12,17 +13,25 @@ from database import get_or_create_thread_id
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Load environment variables
 CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET')
 CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN')
 
-def lambda_handler(event, context):
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    """
+    AWS Lambda handler for processing incoming LINE messages.
+
+    Args:
+        event (Dict[str, Any]): The event data.
+        context (Any): The context data.
+
+    Returns:
+        Dict[str, Any]: The response dictionary.
+    """
     logger.info(f"Event received: {json.dumps(event, default=str)}")
 
     headers = event.get('headers', {})
     body = event.get('body', '{}')
 
-    # Verify the request
     if not verify_signature(headers, body):
         logger.error("Invalid signature")
         return {
@@ -38,11 +47,7 @@ def lambda_handler(event, context):
             reply_token = event['replyToken']
             line_id = event['source']['userId']
             user_message = event['message']['text']
-
-            # Handle the message and generate a response
             response_message = handle_user_message(line_id, user_message)
-
-            # Send the response back to the user
             send_line_reply(reply_token, response_message)
 
     return {
@@ -50,7 +55,17 @@ def lambda_handler(event, context):
         'body': json.dumps('Success')
     }
 
-def verify_signature(headers, body):
+def verify_signature(headers: Dict[str, str], body: str) -> bool:
+    """
+    Verify the request signature.
+
+    Args:
+        headers (Dict[str, str]): The request headers.
+        body (str): The request body.
+
+    Returns:
+        bool: True if the signature is valid, False otherwise.
+    """
     signature = headers.get('x-line-signature')
     if not signature:
         logger.error("Missing signature header")
@@ -63,32 +78,28 @@ def verify_signature(headers, body):
     generated_signature = base64.b64encode(hash).decode('utf-8')
     return hmac.compare_digest(signature, generated_signature)
 
-def handle_user_message(line_id, user_message):
+def handle_user_message(line_id: str, user_message: str) -> str:
+    """
+    Handle the user message and generate a response.
+
+    Args:
+        line_id (str): The user's LINE ID.
+        user_message (str): The user's message.
+
+    Returns:
+        str: The response message.
+    """
     try:
-        # Get or create a thread ID for the given line_id
         thread_id = get_or_create_thread_id(line_id)
         logger.info(f"Thread ID: {thread_id}")
 
-        # Create a run with the user message
         additional_messages = [{"role": "user", "content": user_message}]
         run = create_run(thread_id, additional_messages)
-
-        # Complete the run and get the final status
         run_status = complete_run(run)
-
-        # Get the latest messages from the thread
         messages = get_thread_messages(thread_id)
-        if messages['data']:
-            # Log only the content of the message received
-            for message in messages['data']:
-                for content_part in message["content"]:
-                    if content_part["type"] == "text":
-                        logger.info(f"Message received: {content_part['text']['value']}")
 
-        # Extract the most recent response message
         response_message = ""
         if messages['data']:
-            # Sort messages by creation time in descending order to get the most recent message first
             sorted_messages = sorted(messages['data'], key=lambda x: x['created_at'], reverse=True)
             most_recent_message = sorted_messages[0]
             for content_part in most_recent_message["content"]:
@@ -102,11 +113,14 @@ def handle_user_message(line_id, user_message):
         logger.error(f"Error processing request: {e}", exc_info=True)
         return "Sorry, something went wrong."
 
-def send_line_reply(reply_token, message):
-    if not CHANNEL_ACCESS_TOKEN:
-        logger.error("Missing LINE access token in environment variables")
-        return
+def send_line_reply(reply_token: str, message: str) -> None:
+    """
+    Send a reply message back to the user via the LINE API.
 
+    Args:
+        reply_token (str): The reply token for the LINE message.
+        message (str): The message to send.
+    """
     url = 'https://api.line.me/v2/bot/message/reply'
     headers = {
         'Content-Type': 'application/json',

@@ -14,6 +14,9 @@ def make_request(method: str, url: str, headers: Dict[str, str], data: Optional[
 
     Returns:
         Dict[str, Any]: The JSON response.
+
+    Raises:
+        Exception: If the request fails.
     """
     try:
         if method == 'GET':

@@ -1,20 +1,58 @@
 import xmlrpc.client
 import json
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from config import ODOO_CONFIG
 
-def get_product_info_by_criteria(name: str = None, min_price: float = None, max_price: float = None, category: str = None, reference: str = None, in_stock: bool = None) -> str:
+
+def get_tool_output(tool_name: str, parameters: Dict[str, Any]) -> str:
+    """
+    Executes the tool and returns its output.
+
+    Args:
+        tool_name (str): The name of the tool.
+        parameters (Dict[str, Any]): The parameters to be used by the tool.
+
+    Returns:
+        str: The output from the tool.
+    """
+    if tool_name == "get_product_info_by_criteria":
+        from odoo import get_product_info_by_criteria
+        name = parameters.get("product_name")
+        min_price = parameters.get("min_price")
+        max_price = parameters.get("max_price")
+        category = parameters.get("category")
+        reference = parameters.get("reference")
+        in_stock = parameters.get("in_stock")
+        return get_product_info_by_criteria(name, min_price, max_price, category, reference, in_stock)
+    elif tool_name == "create_invoice":
+        from odoo import create_invoice
+        partner_id = parameters.get("partner_id")
+        delivery_address = parameters.get("delivery_address")
+        product_ids = parameters.get("product_ids")
+        quantities = parameters.get("quantities")
+        return create_invoice(partner_id, delivery_address, product_ids, quantities)
+    else:
+        return f"Unknown tool: {tool_name}"
+
+def get_product_info_by_criteria(
+    name: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    category: Optional[str] = None,
+    reference: Optional[str] = None,
+    in_stock: Optional[bool] = None
+) -> str:
     """
     Retrieves product information based on the given criteria from an Odoo server.
 
     Args:
-        name (str, optional): The name or partial name of the product.
-        min_price (float, optional): The minimum price of the product.
-        max_price (float, optional): The maximum price of the product.
-        category (str, optional): The category of the product.
-        reference (str, optional): The internal reference or code of the product.
-        in_stock (bool, optional): Whether to search for products that are currently in stock.
+        name (Optional[str]): The name or partial name of the product.
+        min_price (Optional[float]): The minimum price of the product.
+        max_price (Optional[float]): The maximum price of the product.
+        category (Optional[str]): The category of the product.
+        reference (Optional[str]): The internal reference or code of the product.
+        in_stock (Optional[bool]): Whether to search for products that are currently in stock.
 
     Returns:
         str: Formatted information about matching products or an error message.
@@ -37,8 +75,8 @@ def get_product_info_by_criteria(name: str = None, min_price: float = None, max_
     models = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/object')
 
     fields_of_interest = [
-        'name', 'list_price', 'description', 'description_sale', 
-        'description_purchase', 'categ_id', 'default_code', 'code', 
+        'name', 'list_price', 'description', 'description_sale',
+        'description_purchase', 'categ_id', 'default_code', 'code',
         'uom_id', 'qty_available', 'x_studio_char_field_80a_1hlhqpi25'
     ]
 
@@ -57,7 +95,7 @@ def get_product_info_by_criteria(name: str = None, min_price: float = None, max_
         domain.append(['qty_available', '>', 0])
 
     try:
-        products = models.execute_kw(db, uid, password, 'product.product', 'search_read', 
+        products = models.execute_kw(db, uid, password, 'product.product', 'search_read',
                                      [domain], {'fields': fields_of_interest, 'limit': 10})
 
         if not products:

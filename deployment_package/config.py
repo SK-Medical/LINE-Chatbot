@@ -1,19 +1,35 @@
 import os
 import logging
+from typing import Optional
 
 # Set up logging for configuration related operations
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Helper function to read environment variables with optional defaults and required checks
-def get_env_var(name, default=None, required=True):
+def get_env_var(name: str, default: Optional[str] = None, required: bool = True) -> str:
+    """
+    Read environment variables with optional defaults and required checks.
+
+    Args:
+        name (str): The name of the environment variable.
+        default (Optional[str]): The default value if the variable is not set.
+        required (bool): Whether the variable is required.
+
+    Returns:
+        str: The value of the environment variable.
+
+    Raises:
+        EnvironmentError: If a required variable is not set.
+    """
     value = os.getenv(name, default)
     if required and value is None:
         logger.error(f"Required environment variable '{name}' is not set.")
         raise EnvironmentError(f"Required environment variable '{name}' is not set")
     return value
 
-# Group related configuration variables into dictionaries
+# Define the initial message for new conversations
+INITIAL_MESSAGE = "Welcome to the SK Medical chatbot! How can I assist you today?"
+
 ODOO_CONFIG = {
     'url': get_env_var('ODOO_URL'),
     'db': get_env_var('ODOO_DB'),

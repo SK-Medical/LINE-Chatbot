@@ -1,0 +1,71 @@
+{
+  "name": "get_product_info_by_criteria",
+  "description": "\n                This function connects to an Odoo server, searches for products based on various criteria, and retrieves detailed information about these products.\n                This is a database of the products you sell as SK_Medical, so if a customer is asking about what products you sell you should use this function.\n                The information retrieved includes fields related to the product such as name, price, descriptions, category, reference numbers, units of measure, and application.\n                The function returns a string with formatted information about all products that match the search criteria.\n                All blank parameters will be set to NONE.\n            ",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "product_name": {
+        "type": "string",
+        "description": "\n                            The name or partial name of the product to search for.\n                            This field is case-insensitive and supports partial matches using the ilike operator.\n                            Example: product_name = \"Glove\"   This will match any product whose name contains \"Glove\".\n                        "
+      },
+      "min_price": {
+        "type": "number",
+        "description": "\n                            The minimum price of the product to search for.\n                            Example: min_price = 10.00   This will match any product with a price greater than or equal to 10.00.\n                        "
+      },
+      "max_price": {
+        "type": "number",
+        "description": "\n                            The maximum price of the product to search for.\n                            Example: max_price = 50.00   This will match any product with a price less than or equal to 50.00.\n                        "
+      },
+      "category": {
+        "type": "string",
+        "description": "\n                            The category of the product to search for.\n                            This field supports exact matches.\n                            Example: category = \"Medical Supplies\"   This will match any product in the \"Medical Supplies\" category.\n                        "
+      },
+      "reference": {
+        "type": "string",
+        "description": "\n                            The internal reference or code of the product to search for.\n                            This field supports exact matches.\n                            Example: reference = \"SKU12345\"   This will match any product with the internal reference \"SKU12345\".\n                        "
+      },
+      "in_stock": {
+        "type": "boolean",
+        "description": "\n                            Whether to search for products that are currently in stock.\n                            Example: in_stock = true   This will match any product that is currently in stock.\n                        "
+      }
+    },
+    "required": []
+  }
+}
+{
+  "name": "create_invoice",
+  "description": "\n                This function creates an invoice for a given partner with specified delivery address and products.\n                It connects to an Odoo server, creates the invoice, and returns the invoice details.\n                The information required includes partner ID, delivery address, product IDs, and quantities.\n            ",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "partner_id": {
+        "type": "integer",
+        "description": "\n                            The ID of the partner for whom the invoice is being created.\n                            Example: partner_id = 1\n                        "
+      },
+      "delivery_address": {
+        "type": "string",
+        "description": "\n                            The delivery address for the invoice.\n                            Example: delivery_address = \"123 Main St, Anytown, USA\"\n                        "
+      },
+      "product_ids": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "description": "\n                            A list of product IDs to be included in the invoice.\n                            Example: product_ids = [1, 2, 3]\n                        "
+      },
+      "quantities": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "\n                            A list of quantities corresponding to each product ID in the invoice.\n                            Example: quantities = [1, 2, 3]\n                        "
+      }
+    },
+    "required": [
+      "partner_id",
+      "delivery_address",
+      "product_ids",
+      "quantities"
+    ]
+  }
+}
