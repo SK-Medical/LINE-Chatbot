@@ -10,8 +10,6 @@ The chatbot leverages the following technologies:
 - **LINE API:** Uses LINE's messaging platform to interact with users, sending and receiving messages through the LINE app.
 - **Odoo API:** Integrates with Odoo ERP to retrieve product information and create invoices.
 
-Customers can prompt the chatbot over the LINE messaging app to search for products and place orders using natural language, making the interaction intuitive and user-friendly.
-
 ### Author
 
 This project was created by Ayden Lamparski during my Summer 2024 internship in Korea at Undernamu Consulting Company.
