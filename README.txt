@@ -18,8 +18,9 @@ This project was created by Ayden Lamparski during my Summer 2024 internship in 
 
 ## File Structure
 
+
 \`\`\`
-.
+
 ├── requirements.txt
 ├── venv/
 ├── functions.json
@@ -33,6 +34,7 @@ This project was created by Ayden Lamparski during my Summer 2024 internship in 
 │ ├── utils.py
 
 \`\`\`
+
 
 ### Description of .py Files
 
