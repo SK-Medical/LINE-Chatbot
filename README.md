@@ -19,22 +19,19 @@ This project was created by Ayden Lamparski during my Summer 2024 internship in 
 ## File Structure
 
 
-\`\`\`
-
+```
 ├── requirements.txt
 ├── venv/
 ├── functions.json
 ├── deployment_package.zip
 ├── deployment_package/
-│ ├── config.py
-│ ├── lambda_function.py
-│ ├── assistant.py
-│ ├── database.py
-│ ├── odoo.py
-│ ├── utils.py
-
-\`\`\`
-
+│   ├── config.py
+│   ├── lambda_function.py
+│   ├── assistant.py
+│   ├── database.py
+│   ├── odoo.py
+│   ├── utils.py
+```
 
 ### Description of .py Files
 
