@@ -25,8 +25,12 @@ def get_env_var(name: str, default: Optional[str] = None, required: bool = True)
     return value
 
 # Define the initial message for new conversations
-INITIAL_MESSAGE = "Welcome to the SK Medical chatbot! How can I assist you today?"
+INITIAL_MESSAGE = '''
+    สวัสดีค่ะ! ฉันคือแชทบอทของบริษัท SK-Medical คุณสามารถพูดคุยกับฉันได้เหมือนคุยกับคนจริงๆ เลยค่ะ ฉันสามารถช่วยคุณสร้างบัญชีใหม่หรือค้นหาบัญชีที่มีอยู่ ค้นหาผลิตภัณฑ์ตามชื่อ ราคา และความพร้อมในการจัดส่ง และช่วยเปรียบเทียบตัวเลือก เมื่อคุณตัดสินใจสั่งซื้อ ฉันสามารถสร้างใบสั่งซื้อให้คุณได้
 
+    คุณเคยสั่งซื้อสินค้ากับเรามาก่อนไหม? ถ้าเคย คุณสามารถใช้บัญชีเดิมได้ ถ้าไม่ คุณจะต้องสร้างบัญชีใหม่ โปรดบอกว่าคุณต้องการใช้บัญชีเดิมหรือสร้างบัญชีใหม่
+    If you would like to speak to me in English, simply ask me.
+'''
 ODOO_CONFIG = {
     'url': get_env_var('ODOO_URL'),
     'db': get_env_var('ODOO_DB'),
