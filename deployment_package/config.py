@@ -1,10 +1,6 @@
 import os
-import logging
 from typing import Optional
-
-# Set up logging for configuration related operations
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from utils import log_message
 
 def get_env_var(name: str, default: Optional[str] = None, required: bool = True) -> str:
     """
@@ -23,8 +19,9 @@ def get_env_var(name: str, default: Optional[str] = None, required: bool = True)
     """
     value = os.getenv(name, default)
     if required and value is None:
-        logger.error(f"Required environment variable '{name}' is not set.")
+        log_message('error', f"Required environment variable '{name}' is not set.")
         raise EnvironmentError(f"Required environment variable '{name}' is not set")
+    log_message('info', f"Environment variable '{name}' is set to '{value}'")
     return value
 
 # Define the initial message for new conversations

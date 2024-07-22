@@ -1,7 +1,7 @@
 import json
 import time
 from typing import Any, Dict, List, Optional
-from utils import make_request
+from utils import make_request, log_message
 from config import OPENAI_CONFIG
 from odoo import get_tool_output
 
@@ -54,13 +54,17 @@ def create_run(thread_id: str, additional_messages: Optional[List[Dict[str, Any]
         data["additional_messages"] = additional_messages
 
     try:
-        return make_request('POST', url, headers, data)
+        result = make_request('POST', url, headers, data)
+        log_message('info', f"Run started: {result}")
+        return result
     except Exception as e:
         error_message = str(e)
+        log_message("error", f"Error when making run: {error_message}")
         if "already has an active run" in error_message:
             active_run_id = error_message.split('run_')[1].split('.')[0]
             run = {'id': f'run_{active_run_id}', 'thread_id': thread_id}
-            complete_run(run)
+            run_status = complete_run(run)
+            log_message('info', f'Previously active run status: {run_status}')
             return make_request('POST', url, headers, data)
         else:
             raise e
@@ -86,15 +90,29 @@ def complete_run(run: Dict[str, Any]) -> Dict[str, Any]:
 
     while True:
         run_status = make_request('GET', url, headers)
-        if run_status['status'] == 'completed':
+        status = run_status.get('status')
+
+        if status == 'completed':
+            log_message('info', f"Run {run_id} completed.")
             break
-        elif run_status['status'] in ['failed', 'cancelled']:
-            print(f"Run {run_status['status']}.")
-            break
-        elif run_status['status'] == 'requires_action' and run_status['required_action']['type'] == 'submit_tool_outputs':
+        elif status == 'failed':
+            error_message = run_status.get('error', {}).get('message', 'Unknown error')
+            error_type = run_status.get('error', {}).get('type', 'Unknown type')
+            error_code = run_status.get('error', {}).get('code', 'Unknown code')
+            detailed_message = (
+                f"Run failed.\n"
+                f"Error Message: {error_message}\n"
+                f"Error Type: {error_type}\n"
+                f"Error Code: {error_code}"
+            )
+            log_message('error', detailed_message)
+            raise Exception(detailed_message)
+        elif status == 'cancelled':
+            log_message('error', f"Run {run_id} was cancelled.")
+            raise Exception("Run was cancelled.")
+        elif status == 'requires_action' and run_status['required_action']['type'] == 'submit_tool_outputs':
             submit_tool_outputs(run_status)
         else:
-            print(f"Run status: {run_status['status']}. Waiting...")
             time.sleep(0.5)
 
     return run_status

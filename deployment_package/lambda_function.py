@@ -1,6 +1,9 @@
+'''
+Author: Ayden Lamparski
+contact information: ayden@lamparski.com
+'''
+
 import json
-import logging
-import os
 import requests
 import hashlib
 import hmac
@@ -8,13 +11,11 @@ import base64
 from typing import Any, Dict
 from assistant import create_run, complete_run, get_thread_messages
 from database import get_or_create_thread_id
+from utils import log_message
+from config import LINE_CONFIG
 
-# Set up logging
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET')
-CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN')
+CHANNEL_SECRET = LINE_CONFIG['channel_secret']
+CHANNEL_ACCESS_TOKEN = LINE_CONFIG['access_token']
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -27,13 +28,12 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: The response dictionary.
     """
-    logger.info(f"Event received: {json.dumps(event, default=str)}")
+    log_message('info', f"Event received: {json.dumps(event, default=str)}")
 
     headers = event.get('headers', {})
     body = event.get('body', '{}')
 
     if not verify_signature(headers, body):
-        logger.error("Invalid signature")
         return {
             'statusCode': 403,
             'body': json.dumps('Invalid signature')
@@ -47,6 +47,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             reply_token = event['replyToken']
             line_id = event['source']['userId']
             user_message = event['message']['text']
+            log_message('info', f"User message received: {user_message}")
             response_message = handle_user_message(line_id, user_message)
             send_line_reply(reply_token, response_message)
 
@@ -68,15 +69,15 @@ def verify_signature(headers: Dict[str, str], body: str) -> bool:
     """
     signature = headers.get('x-line-signature')
     if not signature:
-        logger.error("Missing signature header")
-        return False
-    if not CHANNEL_SECRET:
-        logger.error("Missing LINE channel secret in environment variables")
+        log_message('error', "Missing signature header")
         return False
 
     hash = hmac.new(CHANNEL_SECRET.encode('utf-8'), body.encode('utf-8'), hashlib.sha256).digest()
     generated_signature = base64.b64encode(hash).decode('utf-8')
-    return hmac.compare_digest(signature, generated_signature)
+    is_valid = hmac.compare_digest(signature, generated_signature)
+    if not is_valid:
+        log_message('error', "Invalid signature")
+    return is_valid
 
 def handle_user_message(line_id: str, user_message: str) -> str:
     """
@@ -91,13 +92,12 @@ def handle_user_message(line_id: str, user_message: str) -> str:
     """
     try:
         thread_id = get_or_create_thread_id(line_id)
-        logger.info(f"Thread ID: {thread_id}")
+        log_message('info', f"Thread ID: {thread_id}")
 
-        additional_messages = [{"role": "user", "content": user_message}]
-        run = create_run(thread_id, additional_messages)
+        new_message = [{"role": "user", "content": user_message}]
+        run = create_run(thread_id, new_message)
         run_status = complete_run(run)
         messages = get_thread_messages(thread_id)
-
         response_message = ""
         if messages['data']:
             sorted_messages = sorted(messages['data'], key=lambda x: x['created_at'], reverse=True)
@@ -110,7 +110,7 @@ def handle_user_message(line_id: str, user_message: str) -> str:
         return response_message
 
     except Exception as e:
-        logger.error(f"Error processing request: {e}", exc_info=True)
+        log_message('error', f"Error processing request: {e}")
         return "Sorry, something went wrong."
 
 def send_line_reply(reply_token: str, message: str) -> None:
@@ -132,6 +132,6 @@ def send_line_reply(reply_token: str, message: str) -> None:
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if response.status_code == 200:
-        logger.info(f"Reply message sent: {message}")
+        log_message('info', f"Reply message sent: {message}")
     else:
-        logger.error(f"Error sending reply: {response.status_code} {response.text}")
+        log_message('error', f"Error sending reply: {response.status_code} {response.text}")

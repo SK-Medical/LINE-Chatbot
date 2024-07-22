@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 from typing import Dict
 from config import AWS_CONFIG, OPENAI_CONFIG, INITIAL_MESSAGE
 from assistant import create_thread
-from utils import make_request
+from utils import make_request, log_message
 
 dynamodb = boto3.resource('dynamodb', region_name=AWS_CONFIG['region_name'])
 
@@ -31,6 +31,7 @@ def get_or_create_thread_id(line_id: str) -> str:
             table.put_item(Item={'line_id': line_id, 'thread_id': thread_id})
             return thread_id
     except ClientError as e:
+        log_message('error', f"Failed to retrieve or create thread ID: {e}")
         raise Exception(f"Failed to retrieve or create thread ID: {e}")
 
 def send_initial_message(thread_id: str, message: str) -> None:
@@ -48,7 +49,7 @@ def send_initial_message(thread_id: str, message: str) -> None:
         "OpenAI-Beta": "assistants=v2"
     }
     data = {
-        "role": "system",
+        "role": "assistant",
         "content": message
     }
 
@@ -71,4 +72,5 @@ def is_new_user(line_id: str) -> bool:
         response = table.get_item(Key={'line_id': line_id})
         return 'Item' not in response
     except ClientError as e:
+        log_message('error', f"Failed to check if user is new: {e}")
         raise Exception(f"Failed to check if user is new: {e}")
