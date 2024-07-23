@@ -1,0 +1,28 @@
+{
+  "name": "create_invoice",
+  "description": "Creates an invoice in the SK-Medical Odoo database. ALWAYS confirm all of the parameters with the customer before creating an invoice. ALWAYS send a confirmation message after creating the invoice. This confirmation should explain that an invoice was created (with the information returned by this function) and that an SK-Medical representative will contact them about their order. It should also thank them for their purchase and inform them that if they ever want to reorder or make another purchase that they can simply text you again. If you ever are asked to reorder, simply create an invoice with the same parameters as before, but you should still send a confirmation message before and after the function call. On successful connection to the Odoo database and invoice creation, this function returns information about the created invoice like the id, name, partner information, and invoice line information. On failure to create invoice, returns an error message.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "partner_id": {
+        "type": "integer",
+        "description": "This is the internal reference number of the partner the invoice is being created for. You should have this id from step 2, when you searched for or created the associated partner of the customer with the get_product_info_by_criteria function."
+      },
+      "product_ids": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "description": "The internal reference codes of the product in an ordered list. You should have these product IDs from step 3 when you called the get_product_info_by_criteria() function. These product_ids are the 'id's listed in the return of that function. The ids in this list should be ordered such that they correspond to the order of products in the quantities parameter."
+      },
+      "quantities": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "These are the quantities of items being purchased. You should have this from information the customer has provided you in conversation, and you can also ask them for the quantities of each product they would like to buy. The order of quantities in this list should correspond to the order of product IDs in the product_id parameter."
+      }
+    },
+    "required": ["partner_id", "product_ids", "quantities"]
+  }
+}

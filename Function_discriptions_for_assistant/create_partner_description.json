@@ -1,0 +1,34 @@
+{
+  "name": "create_partner",
+  "description": "This function creates a partner in the SK-Medical Odoo database. Use this function when creating a new partner account in step 2. Ask the customer for information so you can fill out the parameter's values to make this function call. ALWAYS confirm the parameters with the customer before making the partner. On successful creation of the partner in the SK-Medical Odoo database, create_partner returns the 'id' (later used as the partner_id when creating an invoice) and the name of the account. On failing to create the partner or connect to the Odoo database, returns an error message.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The name associated with the partner. It should be the company name or personal name."
+      },
+      "street": {
+        "type": "string",
+        "description": "Street address associated with the new Partner"
+      },
+      "city": {
+        "type": "string",
+        "description": "City associated with the new Partner."
+      },
+      "email": {
+        "type": "string",
+        "description": "Company or personal full email address of the new Partner."
+      },
+      "phone": {
+        "type": "string",
+        "description": "Company or personal phone number of the new Partner."
+      },
+      "zip": {
+        "type": "string",
+        "description": "zip code associated with the adress of the new partner."
+      }
+    },
+    "required": ["name", "street", "city", "email"]
+  }
+}

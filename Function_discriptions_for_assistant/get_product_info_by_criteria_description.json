@@ -1,0 +1,30 @@
+{
+  "name": "get_product_info_by_criteria",
+  "description": "Retrieves product information based on the given criteria from the SK-Medical Odoo server. Use this function to help the user search for products and compare them. Format the returned information in a neat and understandable way and present it to the customer, however do not make a chart because it does not format correctly. You will use the product_ids returned by this function when creating an invoice. On successful connection to Odoo server and at least one product found, returns a list of Dictionaries containing information such as product name, price, descriptions, quantity available, and code. This code is the product_id later used to create an invoice. On successful connection to Odoo server but no products are found, returns 'No products found with the given criteria'. On failed connection to Odoo server, returns an error message.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The name of the product, supporting partial matches. This is usually the brand name or the active ingredient of a drug, or the brand name or general name of a medical device. The vast majority of these product names are entirely in English, for example 'ALCOHOL [ethyl] 60ml', 'Face Mask3Ply Ear Loop 50', 'GLOVE #M', 'LINCOMYCIN 10ml', and 'ZETOFEN 60ml'. A few of the names contain some thai, for example 'BERODUAL sln 20ml ขึ้น  hez', 'CAFERGOT ศ', 'CHECK ONE METHA TEST หยด', 'หูฟัง DUAL HEAD WITH Y TUBE', and 'CHECK ONE METHA TEST หยด '. A few of the names are entirely in Thai, for example 'ตามยา 260858', 'ตลับ 5 กรัม ชมพู', 'ปรอท ', 'ธาตุขาวกระต่ายบิน 200ml', 'ปรอท #M ', 'ผ้ายืด 3', 'สำลี 0.35*5ก้อน', and 'เจลหล่อลื่นแบบซอง 5 กรัม'. THIS PART ON TRANSLATION IS IMPORTANT: When talking to a customer in thai, you will most often want to make a function call with an english name and translate the results when presenting them back into Thai. This is because the majority of the product names are english. In some cases you may even want to search for a thai product name and translate the results into english for an english speaking customer. Or, you will often want to make the funciton call with an English version of the name, then again with the Thai version of the name to get every relevant response, but always translate the results into the language you are speaking to the customer in."
+      },
+      "min_price": {
+        "type": "number",
+        "description": "The function will return only products above a minimum price in Thai Baht"
+      },
+      "max_price": {
+        "type": "number",
+        "description": "The function will return only products below a maximum price in Thai Baht"
+      },
+      "product_id": {
+        "type": "string",
+        "description": "The internal reference number of the product. The customer will probably not know this, but it will be used when creating an invoice."
+      },
+      "in_stock": {
+        "type": "boolean",
+        "description": "Whether to search for products that are currently in stock. Example: in_stock = true   This will match only products that are currently in stock"
+      }
+    },
+    "required": []
+  }
+}

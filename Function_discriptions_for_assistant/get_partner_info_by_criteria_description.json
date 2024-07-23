@@ -1,0 +1,26 @@
+{
+  "name": "get_partner_info_by_criteria",
+  "description": "Retrieves partner (contact) information based on the given criteria from the SK-Medical Odoo server. Use this function when associating the customer with an existing partner account in step 2. On successful connection to the Odoo server and at least one partner found, get_partner_info_by_criteria() returns a list of dictionaries with each element of the list corresponding to a partner. The dictionaries contain information on the partner's 'id' (use this value for the partner_id when creating an invoice), the name, email, phone, whether it is a company, and address information including street, city, and state_id. On successful connection to the Odoo server but no partners matching the criteria are found, get_partner_info_by_criteria() returns the string 'No partners found with the given criteria'. On failed connection to the Odoo server, get_partner_info_by_criteria() returns an error message.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "partner_id": {
+        "type": "integer",
+        "description": "This is the internal reference number for the partner in the Odoo database. The customer will not know this parameter when trying to associate with their account in step 2. This field does not support partial matches."
+      },
+      "name": {
+        "type": "string",
+        "description": "This is the title of the account, which may be the company name or the person's name. This field supports partial matches and is case insensitive."
+      },
+      "email": {
+        "type": "string",
+        "description": "This is the email address associated with the account. This is a good parameter to ask the user for when associating them with an account in step 2. This field supports partial matches."
+      },
+      "phone": {
+        "type": "string",
+        "description": "This is the phone number associated with the account. This is a good parameter to ask the user for when associating them with an account in step 2. This field supports partial matches."
+      }
+    },
+    "required": []
+  }
+}
