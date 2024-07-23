@@ -46,7 +46,7 @@ Ayden Lamparski - contact at ayden@lamparski.com
 ```sh
 git clone https://github.com/SK-Medical/LINE-Chatbot.git
 cd LINE-Chatbot
-'''
+```
 
 ### Environment Variables
 The following environment variables must be set for the Lambda function in the AWS console:
