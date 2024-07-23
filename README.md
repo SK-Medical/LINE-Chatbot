@@ -5,7 +5,6 @@ This project is a LINE messaging chatbot designed for SK-Medical, a Thai medical
 ### Author
 
 Ayden Lamparski - contact at ayden@lamparski.com
-This project was created for my 2024 summer internship in Seoul, Korea at Undernamu consulting company.
 
 ## Table of Contents
 1. [Architecture and Functionality Overview](#architecture-and-functionality-overview)
@@ -45,7 +44,7 @@ This project was created for my 2024 summer internship in Seoul, Korea at Undern
 
 ### Clone the Repository
 ```sh
-git clone https://github.com/AydenLamp/Chatbot.git
+git clone https://github.com/SK-Medical/LINE-Chatbot
 cd LINE-Chatbot
 ```
 
